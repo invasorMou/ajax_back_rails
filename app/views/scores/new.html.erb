@@ -1,0 +1,96 @@
+<div class="card w-50 mx-auto text-center p-4" style="height:100%; overflow:scroll;">
+  <h1>Submit a new Score!</h1>
+  
+  <form class="w-50 mx-auto" onsubmit="return handleSubmit(event)">
+    <div class="form-group">
+      <input type="text" name="name" value="" placeholder="Name" class="form-control" >
+    </div>
+    <div class="form-group">
+      <label for="points">Points</label>
+      <input class="form-control" type="range" min="1" max="100" value="0" class="slider" name="points" id="myRange"> 
+      <div class="rangeValue">
+        
+      </div>
+    </div>
+    
+    <button class="btn btn-warning" type="submit" name="button" >Submit Score</button>
+  </form>
+  
+  <table class="table mt-5 table-striped">
+    <thead class="thead-dark">
+      <th>Name</th>
+      <th>Points</th>
+    </thead>
+    <tbody id="scoreTable">
+      <% @scores.each do |score| %>
+      <tr>
+        <td>
+          <%= score.name %>
+        </td>
+        <td>
+          <%= score.points %>
+        </td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<script type="text/javascript">
+  async function handleSubmit(event){
+    event.preventDefault();
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+  
+    const score = getScore()
+    
+    const backendCall = await fetch('/scores', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Data-Type': 'application/json',
+        'X-CSRF-Token': token
+      },
+      body: JSON.stringify(score)
+    });
+    const newScore = await backendCall.json();
+    addNewScore(newScore)
+  }
+  
+  function getScore(){
+    const formData = {}
+    document.querySelectorAll('input').forEach((input) => {
+      formData[input.name] = input.value
+    })
+    return formData
+  }
+  
+  function addNewScore(data){
+    const row = document.createElement("tr");
+    const nameData = document.createElement("td");
+    const pointData = document.createElement("td");
+    
+    const name = document.createTextNode(data.name);
+    const points = document.createTextNode(data.points);
+    
+    nameData.appendChild(name);
+    pointData.appendChild(points);
+    
+    row.appendChild(nameData);
+    row.appendChild(pointData);
+    
+    document.querySelector('#scoreTable').appendChild(row)
+  }
+  
+  
+  
+  
+  
+  
+  var slider = document.querySelector("#myRange");
+  var output = document.querySelector(".rangeValue");
+  output.innerHTML = slider.value; 
+  
+  slider.oninput = function() {
+    output.innerHTML = this.value;
+  }
+</script>
