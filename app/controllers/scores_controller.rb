@@ -1,7 +1,6 @@
 class ScoresController < ApplicationController
   def  new
     @score = Score.new
-    @scores = Score.order(points: :desc)
   end
   
   def create
@@ -11,6 +10,11 @@ class ScoresController < ApplicationController
         format.json { render json: score.as_json}
       end
     end
+  end
+  
+  def index
+    @scores = Score.order(points: :desc)
+    render json: @scores
   end
   
   private

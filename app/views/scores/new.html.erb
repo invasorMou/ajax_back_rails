@@ -22,21 +22,32 @@
       <th>Points</th>
     </thead>
     <tbody id="scoreTable">
-      <% @scores.each do |score| %>
-      <tr>
-        <td>
-          <%= score.name %>
-        </td>
-        <td>
-          <%= score.points %>
-        </td>
-      </tr>
-      <% end %>
     </tbody>
   </table>
 </div>
 
 <script type="text/javascript">
+  async function getAllScores() {
+    const tBody = document.querySelector('#scoreTable');
+    tBody.innerHTML = "";
+    const backendCall = await fetch('/scores')
+    const allScore = await backendCall.json();
+    
+    allScore.forEach((score)=>{
+      const row = document.createElement('tr');
+      const name = document.createElement('td');
+      name.innerHTML = score.name;
+      const points = document.createElement('td');
+      points.innerHTML = score.points;
+      row.appendChild(name)
+      row.appendChild(points)
+      tBody.appendChild(row)
+    }) 
+    // fetch('/scores').then(response=> response.json())
+  }
+  
+  window.onload = getAllScores();
+  
   async function handleSubmit(event){
     event.preventDefault();
     const token = document.querySelector('meta[name="csrf-token"]').content;
@@ -53,7 +64,7 @@
       body: JSON.stringify(score)
     });
     const newScore = await backendCall.json();
-    addNewScore(newScore)
+    getAllScores()
   }
   
   function getScore(){
